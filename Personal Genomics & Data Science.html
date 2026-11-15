@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Personal Genomics &amp; Data Science</title>
+<style>
+:root{--bg:#06050b;--fg:#f4efff;--a0:#62b6ff;--a1:#ff6ab8;--a2:#3de8c0;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);overflow:hidden;font-family:"Helvetica Neue",Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+#c{position:fixed;inset:0;overflow:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:calc(56px + env(safe-area-inset-top,0px)) 22px calc(56px + env(safe-area-inset-bottom,0px));transition:opacity .35s,transform .35s,filter .35s}
+#c.out{opacity:0;transform:scale(1.04);filter:blur(10px)}
+#c>*{width:100%;max-width:1040px;box-sizing:border-box}
+.k{font-size:15px;color:var(--a2);margin:0 0 10px;text-shadow:0 1px 12px #000}
+.h{margin:0;font-size:clamp(34px,6.4vw,78px);font-weight:900;letter-spacing:-.045em;line-height:1;text-shadow:0 2px 30px #000}
+.h.hero{font-size:clamp(40px,8.6vw,110px);line-height:.95}
+.h.big{font-size:clamp(76px,22vw,280px);line-height:.9;letter-spacing:-.06em}
+.s{font-size:clamp(17px,2.2vw,24px);line-height:1.4;margin:18px 0 0;max-width:34em;text-shadow:0 1px 16px #000}
+.n{font-size:15px;opacity:.8;margin:14px 0 0}
+.m{display:flex;flex-wrap:wrap;gap:12px 34px;margin-top:30px}
+.m span{display:block;font-size:13px;opacity:.7}.m b{font-size:18px}
+.g,.g2{display:grid;gap:14px;margin-top:28px}
+.g{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.cd{background:rgba(8,6,18,.66);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:18px 20px}
+.cd h3{margin:0 0 8px;font-size:20px}.cd p{margin:0;font-size:16px;line-height:1.45;opacity:.88}
+.cd i{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--a0);color:#06050b;font-style:normal;font-weight:800;margin-bottom:10px}
+.cd ul{margin:0;padding-left:20px;font-size:16px;line-height:1.7}
+.math{margin-top:28px;font-size:clamp(18px,3vw,30px);overflow-x:auto;text-align:center}
+#ui{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:calc(20px + env(safe-area-inset-top,0px)) 22px calc(20px + env(safe-area-inset-bottom,0px));mix-blend-mode:difference;color:#fff;font-size:14px;text-align:center}
+#ui div{opacity:.8}
+</style></head><body>
+<canvas id="cv"></canvas><div id="c"></div>
+<div id="ui"><div id="n"></div><div>Click, space or arrow keys to move. Press P to toggle autoplay.</div></div>
+<script>
+const SL=[
+{k:'Om Sterling Global University',t:'Personal Genomics & Data Science',hero:1,s:'Advanced pipelines, functional sequencing architectures, and high-dimensional predictive modeling.',m:[['Presented by','G.Nitesh'],['Roll number','241020110046'],['Department','School of Eng. & Tech (SET)']]},
+{k:'Paradigm shift',t:'Precision Analytics',s:'Personal genomics abandons the classical “one-size-fits-all” population average model.',c:[['Single-Patient Focus','Treats individual genomes as high-density discrete datasets.']]},
+{k:'Translational impact',t:'P4 Medicine Substrates',c:[['Risk Stratification','Baseline odds ratios at birth.'],['Precision Oncology','Pinpointing somatic driver mutations.'],['Pharmacogenomics','Eliminating adverse drug toxicity.']]},
+{k:'Genomic variation scale',big:'5 Million',s:'Sites of variation per human genome.',n:'Relative to the standard reference sequence (GRCh38).'},
+{k:'Data formats',t:'From Reads to Variants',c:[['FASTQ','Raw reads with per-base quality scores, straight from the sequencer.'],['BAM / CRAM','Reads aligned to GRCh38, sorted and indexed for fast regional access.'],['VCF','Variants per sample: position, alleles, genotype and quality metrics.']]},
+{k:'Data architecture',t:'Bioinformatic Pipeline',nn:1,c:[['Basecalling','Raw optical signal translation.'],['Alignment','High-performance string indexing.'],['Variant Calling','Bayesian local reassembly.'],['Annotation','ML predictive modeling input.']]},
+{k:'Tooling landscape',t:'Calling & Annotation Stack',l:[['Variant Callers',['GATK HaplotypeCaller: local reassembly.','DeepVariant: CNN on pileup image tensors.','Mutect2 and Strelka2 for somatic tumor calls.','Output: VCF with genotype and quality.']],['Annotation Resources',['Ensembl VEP, ANNOVAR: consequence calls.','gnomAD: population allele frequencies.','ClinVar: curated clinical significance.','CADD, REVEL: deleteriousness scores.']]]},
+{k:'Sequencing scales',t:'WGS vs WES Targeting',l:[['Whole Genome (WGS)',['Full 3.2 gigabase sequence coverage.','Captures deep intronic regulatory variants.','Identifies massive structural breakpoints.','Typically sequenced at about 30x depth.']],['Whole Exome (WES)',['Targets 1.5% protein-coding regions.','Captures 85% of known disease mutations.','Substantially reduced computational storage.','Typically sequenced at about 100x depth.']]]},
+{k:'Feature selection',t:'Elastic Net Regularization',f:'<math display="block"><munder><mo>min</mo><mi>β</mi></munder><mfrac><mn>1</mn><mrow><mn>2</mn><mi>n</mi></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msup><mrow><mo>(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><msubsup><mi>x</mi><mi>i</mi><mi>T</mi></msubsup><mi>β</mi><mo>)</mo></mrow><mn>2</mn></msup><mo>+</mo><mi>λ</mi><mo>[</mo><mi>α</mi><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>p</mi></munderover><mo>|</mo><msub><mi>β</mi><mi>j</mi></msub><mo>|</mo><mo>+</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mi>α</mi></mrow><mn>2</mn></mfrac><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>p</mi></munderover><msubsup><mi>β</mi><mi>j</mi><mn>2</mn></msubsup><mo>]</mo></math>',n:'Balances sparsity (L1) and gene-grouping (L2) for biological pathways.'},
+{k:'High-dimensional data',t:'Why Regularize Genomic Models',l:[['The Problem',['Millions of variants, only thousands of people.','Unpenalized fits memorize noise (overfitting).','Neighboring variants are strongly correlated.','Coefficients turn unstable and unreliable.']],['The Remedy',['L1 (Lasso) zeroes out uninformative variants.','L2 (Ridge) shrinks correlated effects together.','Elastic Net blends both through weight α.','Cross-validation tunes λ and α.']]]},
+{k:'Predictive ML',t:'Polygenic Risk Scores',c:[['Cumulative Liability','Aggregating thousands of small-effect variants.'],['Linkage Disequilibrium','Bayesian models adjusting for marker correlation.']]},
+{k:'Model evaluation',t:'Judging a Risk Score',c:[['Discrimination','AUC and C-index test whether cases rank above controls.'],['Calibration','Predicted risk must match observed rates across score deciles.'],['Portability','Accuracy drops in ancestries missing from the training cohort.']]},
+{k:'Responsible genomics',t:'Promise and Risk',l:[['Promise',['Earlier, individualized prevention strategies.','Safer drug choices and dosing.','Faster diagnosis of rare disease.','Shared datasets speed up discovery.']],['Risk',['Genomes are inherently identifying data.','Genetic discrimination in insurance and work.','Models trained on European cohorts transfer poorly.','One result also reveals relatives’ risk.']]]},
+{k:'Next frontier',t:'What Comes Next',c:[['Long-Read Sequencing','Reads spanning tens of kilobases resolve repeats and structural variants.'],['Pangenome References','Graph references capture diverse haplotypes beyond one GRCh38.'],['Multi-Omics Models','Joint models combine genome, transcriptome, proteome and methylome.']]},
+{t:'Questions & Discussion',hero:1,s:'G.Nitesh | 241020110046'},
+{t:'Image Sources',c:[['europosters.se','https://as2.ftcdn.net/v2/jpg/19/23/57/69/1000_F_1923576918_Rj0XNnUQ7XSf2hvxAVWI2sKWYKFGfysZ.jpg'],['esmed.org','https://esmed.org/pdf-to-wp-converter/uploads/images/machine-learning-biomarker-discovery-precision-medicine-img-2.png']],w:1}];
+const $=s=>document.querySelector(s),cv=$('#cv'),mx=cv.getContext('2d'),box=$('#c'),TAU=Math.PI*2,NS=SL.length;
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,e_=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function render(d){let h='';
+ if(d.k)h+=`<div class=k>${e_(d.k)}</div>`;
+ h+=d.big?`<div class="h big" id=h>${d.big}</div>`:`<h2 class="h${d.hero?' hero':''}" id=h>${e_(d.t)}</h2>`;
+ if(d.s)h+=`<p class=s>${e_(d.s)}</p>`;
+ if(d.m)h+=`<div class=m>${d.m.map(([a,b])=>`<div><span>${e_(a)}</span><b>${e_(b)}</b></div>`).join('')}</div>`;
+ if(d.c)h+=`<div class=g>${d.c.map(([a,b],i)=>`<div class=cd>${d.nn?`<i>${i+1}</i>`:''}<h3>${e_(a)}</h3><p${d.w?' style="word-break:break-all;font-size:13px"':''}>${e_(b)}</p></div>`).join('')}</div>`;
+ if(d.l)h+=`<div class=g2>${d.l.map(([a,b],i)=>`<div class=cd><h3 style="color:var(--a${i})">${e_(a)}</h3><ul>${b.map(x=>`<li>${e_(x)}</li>`).join('')}</ul></div>`).join('')}</div>`;
+ if(d.f)h+=`<div class="cd math">${d.f}</div>`;
+ if(d.n)h+=`<p class=n>${e_(d.n)}</p>`;
+ return h}
+let W,H,D=Math.min(devicePixelRatio||1,1.5);
+const L=[0,1,2,3,4].map(()=>{const c=document.createElement('canvas');return{c,x:c.getContext('2d')}});
+function size(){W=innerWidth*D|0;H=innerHeight*D|0;cv.width=W;cv.height=H;L.forEach(l=>{l.c.width=W;l.c.height=H;l.x.fillStyle='#06050b';l.x.fillRect(0,0,W,H)})}
+const M=()=>Math.min(W,H);
+const P=Array.from({length:700},()=>({x:Math.random(),y:Math.random()}));
+const ST=Array.from({length:520},()=>({x:Math.random()*2-1,y:Math.random()*2-1,z:Math.random(),h:Math.random()}));
+const S=[
+(x,t)=>{x.fillStyle='rgba(6,5,11,.07)';x.fillRect(0,0,W,H);x.lineWidth=D*1.3;
+ for(const p of P){const px=p.x*W,py=p.y*H,a=(Math.sin(px*.003+t*.6)+Math.cos(py*.004-t*.4))*Math.PI,nx=px+Math.cos(a)*3.2*D,ny=py+Math.sin(a)*3.2*D;
+ x.strokeStyle=`hsla(${175+a*35},95%,62%,.8)`;x.beginPath();x.moveTo(px,py);x.lineTo(nx,ny);x.stroke();
+ p.x=nx/W;p.y=ny/H;if(p.x<0||p.x>1||p.y<0||p.y>1||Math.random()<.003){p.x=Math.random();p.y=Math.random()}}},
+(x,t)=>{x.fillStyle='rgba(6,5,11,.22)';x.fillRect(0,0,W,H);x.lineWidth=D*1.5;const cx=W/2,cy=H/2,m=M();
+ for(let i=1;i<44;i++){const n=3+i%5,r=i*m*.012+Math.sin(t*1.2+i*.35)*m*.03,rot=t*.25*(i%2?1:-1)+i*.12;
+ x.strokeStyle=`hsla(${265+i*5},90%,${52+Math.sin(t+i)*15}%,.65)`;x.beginPath();
+ for(let k=0;k<=n;k++){const a=rot+k/n*TAU;x[k?'lineTo':'moveTo'](cx+Math.cos(a)*r,cy+Math.sin(a)*r)}x.stroke()}},
+(x,t)=>{x.fillStyle='rgba(6,5,11,.16)';x.fillRect(0,0,W,H);x.globalCompositeOperation='lighter';x.lineWidth=D*2;
+ for(let j=0;j<7;j++){x.strokeStyle=`hsla(${300+j*22},100%,55%,.5)`;x.beginPath();
+ for(let u=0;u<=1;u+=.004){const a=u*TAU*2,px=W/2+Math.sin(a*1.5+t*.7+j*.5)*W*.42*Math.sin(u*3.14+.2),py=H/2+Math.sin(a*2+t+j)*H*.34;x[u?'lineTo':'moveTo'](px,py)}x.stroke()}
+ x.globalCompositeOperation='source-over'},
+(x,t)=>{x.fillStyle='rgba(6,5,11,.3)';x.fillRect(0,0,W,H);const cx=W/2+Math.sin(t*.5)*W*.1,cy=H/2+Math.cos(t*.4)*H*.1,k=W*.125;x.lineWidth=D*1.6;
+ for(const s of ST){const z0=s.z;s.z-=.012;if(s.z<=.03){s.x=Math.random()*2-1;s.y=Math.random()*2-1;s.z=1;continue}
+ x.strokeStyle=`hsl(${25+s.h*45},100%,${60+(1-s.z)*30}%)`;x.beginPath();x.moveTo(cx+s.x/z0*k,cy+s.y/z0*k);x.lineTo(cx+s.x/s.z*k,cy+s.y/s.z*k);x.stroke()}},
+(x,t)=>{x.fillStyle='rgba(6,5,11,.5)';x.fillRect(0,0,W,H);x.globalCompositeOperation='lighter';const m=M();
+ for(let i=0;i<12;i++){const px=W/2+Math.sin(t*.5+i*1.7)*W*.35,py=H/2+Math.cos(t*.6+i*2.3)*H*.3,r=m*(.2+.1*Math.sin(t+i)),h=(i*30+t*30)%360,g=x.createRadialGradient(px,py,0,px,py,r);
+ g.addColorStop(0,`hsla(${h},100%,55%,.55)`);g.addColorStop(1,`hsla(${h},100%,50%,0)`);x.fillStyle=g;x.beginPath();x.arc(px,py,r,0,TAU);x.fill()}
+ x.globalCompositeOperation='source-over'}];
+let cur=0,nxt=-1,tp=0,mode=-1,ox=.5,oy=.5,t0=performance.now(),last=t0,idle=0,auto=false,swapped=true;
+const E=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2,G='█▓▒░<>/\\#%&01';let sc=0;
+function scramble(txt){const el=$('#h');if(!el)return;if(RM){el.textContent=txt;return}const id=++sc;let f=0;const run=()=>{if(id!==sc)return;f++;el.textContent=[...txt].map((c,i)=>c==' '||f>i*2+6?c:G[Math.random()*G.length|0]).join('');if(f<txt.length*2+7)setTimeout(run,30);else el.textContent=txt};run()}
+function show(i){box.innerHTML=render(SL[i]);box.scrollTop=0;box.classList.remove('out');$('#n').textContent=(i+1)+' of '+NS;const d=SL[i];scramble(d.big||d.t)}
+function go(d,e){if(nxt>=0)return;const n=cur+d;if(n<0||n>=NS)return;nxt=n;tp=0;swapped=false;mode=(mode+1)%5;
+ ox=e&&e.clientX?e.clientX/innerWidth:.5;oy=e&&e.clientY?e.clientY/innerHeight:.5;idle=0;box.classList.add('out')}
+function comp(p){const A=L[cur%5].c,B=L[nxt%5].c,e=E(p);
+ if(mode!=3)mx.drawImage(A,0,0);
+ if(mode==0){const R=e*Math.hypot(W,H);mx.save();mx.beginPath();mx.arc(ox*W,oy*H,R,0,TAU);mx.clip();mx.drawImage(B,0,0);mx.restore();
+  mx.strokeStyle='#fff';mx.lineWidth=D*4;mx.globalAlpha=1-e;mx.beginPath();mx.arc(ox*W,oy*H,R,0,TAU);mx.stroke();mx.globalAlpha=1}
+ else if(mode==1){const n=28,h=H/n;for(let k=0;k<n;k++){const q=Math.min(1,Math.max(0,p*1.7-k/n*.7)),dx=(1-E(q))*W*(k%2?1:-1);mx.drawImage(B,0,k*h,W,h,dx,k*h,W,h)}}
+ else if(mode==2){const s=48*D,cw=Math.ceil(W/s),ch=Math.ceil(H/s);for(let i=0;i<cw;i++)for(let j=0;j<ch;j++){const q=((Math.sin(i*12.9898+j*78.233)*43758.5453)%1+1)%1;if(q<e)mx.drawImage(B,i*s,j*s,s,s,i*s,j*s,s,s)}}
+ else if(mode==3){mx.fillStyle='#06050b';mx.fillRect(0,0,W,H);let z=1+e*.8;mx.globalAlpha=1-e;mx.drawImage(A,W/2*(1-z),H/2*(1-z),W*z,H*z);z=1.5-e*.5;mx.globalAlpha=e;mx.drawImage(B,W/2*(1-z),H/2*(1-z),W*z,H*z);mx.globalAlpha=1}
+ else{mx.save();mx.beginPath();mx.moveTo(W/2,H/2);mx.arc(W/2,H/2,Math.hypot(W,H),-Math.PI/2,-Math.PI/2+e*TAU);mx.closePath();mx.clip();mx.drawImage(B,0,0);mx.restore()}
+ if(!RM){const g=Math.sin(p*Math.PI);for(let i=0;i<7;i++){const y=Math.random()*H,h=(.01+Math.random()*.06)*H;mx.drawImage(cv,0,y,W,h,(Math.random()-.5)*W*.25*g,y,W,h)}}}
+function frame(now){const dt=Math.min(now-last,50),t=(now-t0)/1000;last=now;
+ S[cur%5](L[cur%5].x,t);
+ if(nxt>=0){S[nxt%5](L[nxt%5].x,t);tp+=dt/1500;
+  if(!swapped&&tp>.5){swapped=true;show(nxt)}
+  if(tp>=1){cur=nxt;nxt=-1;tp=0;idle=0;if(!swapped){swapped=true;show(cur)}}else comp(tp)}
+ if(nxt<0){mx.drawImage(L[cur%5].c,0,0);idle+=dt;if(auto&&idle>7000)go(1)}
+ requestAnimationFrame(frame)}
+addEventListener('resize',size);
+addEventListener('pointerdown',e=>go(1,e));
+addEventListener('keydown',e=>{if(e.code=='Space'||e.code=='ArrowRight'||e.code=='Enter'){e.preventDefault();go(1)}else if(e.code=='ArrowLeft'){e.preventDefault();go(-1)}else if(e.code=='KeyP'){auto=!auto;idle=0}});
+let wl=0;addEventListener('wheel',e=>{const n=performance.now();if(Math.abs(e.deltaY)>20&&n-wl>900){wl=n;go(e.deltaY>0?1:-1)}},{passive:true});
+size();show(0);requestAnimationFrame(frame);
+</script></body></html>

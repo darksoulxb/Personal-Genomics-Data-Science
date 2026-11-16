@@ -1,4 +1,4 @@
-# Personal Genomics & Data Science: Dark Rooms
+# Personal Genomics & Data Science
 
 A 16-slide presentation on personal genomics and data science, built as a single self-contained HTML file. Each slide is a "room" with a generative canvas background, a scrambling headline and a different transition between rooms.
 
